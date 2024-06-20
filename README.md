@@ -1,0 +1,1 @@
+# hermes-mail-sender-operator
