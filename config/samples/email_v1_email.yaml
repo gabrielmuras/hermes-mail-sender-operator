@@ -1,0 +1,9 @@
+apiVersion: email.hermes.sender/v1
+kind: Email
+metadata:
+  labels:
+    app.kubernetes.io/name: hermes-mail-sender-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: email-sample
+spec:
+  # TODO(user): Add fields here
