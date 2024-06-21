@@ -29,8 +29,8 @@ type EmailSenderConfigSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of EmailSenderConfig. Edit emailsenderconfig_types.go to remove/update
-	apiTokenSecretRef string `json:"apiTokenSecretRef,omitempty"`
-	senderEmail       string `json:"senderEmail,omitempty"`
+	ApiTokenSecretRef string `json:"apitokensecretref,omitempty"`
+	SenderEmail       string `json:"senderemail,omitempty"`
 }
 
 // EmailSenderConfigStatus defines the observed state of EmailSenderConfig

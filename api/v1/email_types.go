@@ -29,16 +29,19 @@ type EmailSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Email. Edit email_types.go to remove/update
-	senderConfigRef string `json:"senderConfigRef,omitempty"`
-	recipientEmail  string `json:"recipientEmail,omitempty"`
-	subject         string `json:"subject,omitempty"`
-	body            string `json:"body,omitempty"`
+	SenderConfigRef string `json:"senderconfigref,omitempty"`
+	RecipientEmail  string `json:"recipientemail,omitempty"`
+	Subject         string `json:"subject,omitempty"`
+	Body            string `json:"body,omitempty"`
 }
 
 // EmailStatus defines the observed state of Email
 type EmailStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	DeliveryStatus string `json:"deliverystatus,omitempty"`
+	MessageId      string `json:"messageid,omitempty"`
+	Error          string `json:"error,omitempty"`
 }
 
 // +kubebuilder:object:root=true
