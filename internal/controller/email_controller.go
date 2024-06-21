@@ -19,6 +19,7 @@ package controller
 import (
 	"context"
 
+	mailv1 "hermes-mail-sender-operator/api/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -45,9 +46,10 @@ type EmailReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.18.2/pkg/reconcile
 func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	ctx := context.Background()
 
-	// TODO(user): your logic here
+	log := log.FromContext(ctx)
+	log.Info("Reconciling Email")
 
 	return ctrl.Result{}, nil
 }
@@ -57,5 +59,6 @@ func (r *EmailReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		// Uncomment the following line adding a pointer to an instance of the controlled resource as an argument
 		// For().
+		For(&mailv1.Email{}).
 		Complete(r)
 }
