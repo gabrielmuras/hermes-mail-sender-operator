@@ -43,6 +43,7 @@ type EmailStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="status",type=string,JSONPath=`.status.status`
 
 // Email is the Schema for the emails API
 type Email struct {

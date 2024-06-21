@@ -41,6 +41,7 @@ type EmailSenderConfigStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="status",type=string,JSONPath=`.status.status`
 
 // EmailSenderConfig is the Schema for the emailsenderconfigs API
 type EmailSenderConfig struct {

@@ -35,6 +35,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	emailv1 "hermes-mail-sender-operator/api/v1"
+	"hermes-mail-sender-operator/internal/controller"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -122,6 +123,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&controller.EmailSenderConfigReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "EmailSenderConfig")
+		os.Exit(1)
+	}
+	if err = (&controller.EmailReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Email")
+		os.Exit(1)
+	}
 	// +kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
