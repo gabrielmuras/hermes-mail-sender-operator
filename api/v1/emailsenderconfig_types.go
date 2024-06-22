@@ -29,14 +29,16 @@ type EmailSenderConfigSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of EmailSenderConfig. Edit emailsenderconfig_types.go to remove/update
-	ApiTokenSecretRef string `json:"apitokensecretref,omitempty"`
-	SenderEmail       string `json:"senderemail,omitempty"`
+	ApiTokenSecretRef string `json:"apiTokenSecretRef,omitempty"`
+	SenderEmail       string `json:"senderEmail,omitempty"`
+	Provider          string `json:"provider,omitempty"`
 }
 
 // EmailSenderConfigStatus defines the observed state of EmailSenderConfig
 type EmailSenderConfigStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+	Status string `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
