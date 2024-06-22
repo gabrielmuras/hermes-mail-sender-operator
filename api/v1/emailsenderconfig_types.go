@@ -38,11 +38,13 @@ type EmailSenderConfigSpec struct {
 type EmailSenderConfigStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	Status string `json:"status,omitempty"`
+	Provider string `json:"provider,omitempty"`
+	Status   string `json:"status,omitempty"`
 }
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:printcolumn:name="provider",type=string,JSONPath=`.spec.provider`
 // +kubebuilder:printcolumn:name="status",type=string,JSONPath=`.status.status`
 
 // EmailSenderConfig is the Schema for the emailsenderconfigs API
