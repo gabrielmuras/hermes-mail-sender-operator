@@ -1,11 +1,66 @@
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  labels:
-    app.kubernetes.io/name: hermes-mail-sender-operator
-    app.kubernetes.io/managed-by: kustomize
   name: manager-role
 rules:
-- apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - email.hermes.sender
+  resources:
+  - emails
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - email.hermes.sender
+  resources:
+  - emails/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - email.hermes.sender
+  resources:
+  - emails/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - email.hermes.sender
+  resources:
+  - emailsenderconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - email.hermes.sender
+  resources:
+  - emailsenderconfigs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - email.hermes.sender
+  resources:
+  - emailsenderconfigs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - email.hermes.sender
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch

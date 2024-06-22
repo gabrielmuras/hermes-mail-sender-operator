@@ -18,7 +18,6 @@ package controller
 
 import (
 	"context"
-
 	mailv1 "hermes-mail-sender-operator/api/v1"
 	providers "hermes-mail-sender-operator/internal/providers"
 	corev1 "k8s.io/api/core/v1"
