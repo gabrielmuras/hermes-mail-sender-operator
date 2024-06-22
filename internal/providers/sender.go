@@ -18,7 +18,7 @@ type EmailConfig struct {
 }
 
 func SendEmailMailerSender(config EmailConfig) (*string, error) {
-
+	//mailersender provider can be validated with a dummy email to himself
 	ms := mailersend.NewMailersend(config.ApiToken)
 
 	ctx := context.Background()
