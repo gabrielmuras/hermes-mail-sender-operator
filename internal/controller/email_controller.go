@@ -18,9 +18,11 @@ package controller
 
 import (
 	"context"
-
 	mailv1 "hermes-mail-sender-operator/api/v1"
+	providers "hermes-mail-sender-operator/internal/providers"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -46,11 +48,117 @@ type EmailReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.18.2/pkg/reconcile
 func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
-
 	log := log.FromContext(ctx)
 	log.Info("Reconciling Email")
 
+	var email mailv1.Email
+	var emailSenderConfig mailv1.EmailSenderConfig
+
+	if err := r.Get(ctx, req.NamespacedName, &email); err != nil {
+		log.Error(err, "Unable to fetch Email")
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	if email.Status.DeliveryStatus == "" {
+		log.Info("Email status is empty")
+
+		key := client.ObjectKey{
+
+			Namespace: req.Namespace,
+			Name:      email.Spec.SenderConfigRef,
+		}
+
+		if err := r.Get(ctx, key, &emailSenderConfig); err != nil {
+
+			log.Error(err, "Unable to fetch EmailSenderConfig. "+email.Spec.SenderConfigRef)
+			return ctrl.Result{}, nil
+
+		} else {
+
+			status := emailSenderConfig.Status.Status
+
+			if status == "Error" {
+				log.Error(err, "EmailSenderConfig is in error state and cannot be used")
+				email.Status.DeliveryStatus = "EmailSenderConfigError"
+				return ctrl.Result{}, nil
+			}
+
+			//provider := emailSenderConfig.Spec.Provider
+			log.Info("Able to fetch EmailSenderConfig " + emailSenderConfig.Metadata.Name)
+
+		}
+
+		var apiTokenDecode string
+		secret := &corev1.Secret{}
+		secretName := types.NamespacedName{
+			Name:      emailSenderConfig.Spec.ApiTokenSecretRef,
+			Namespace: req.Namespace,
+		}
+
+		if err := r.Get(ctx, secretName, secret); err != nil {
+			log.Error(err, "Failed to get Secret", "SecretName", secretName)
+			return ctrl.Result{}, err
+		}
+
+		// Retrieve the API token from the secret
+		apiToken, exists := secret.Data["apiToken"]
+		if !exists {
+			log.Error(nil, "Secret does not contain key 'apiToken'")
+
+		} else {
+			apiTokenDecode = string(apiToken)
+		}
+
+		EmailConfig := providers.EmailConfig{
+
+			ApiToken:       apiTokenDecode,
+			Subject:        email.Spec.Subject,
+			Text:           email.Spec.Body,
+			FromEmail:      emailSenderConfig.Spec.SenderEmail,
+			RecipientEmail: email.Spec.RecipientEmail,
+		}
+
+		switch provider := emailSenderConfig.Spec.Provider; provider {
+
+		case "mailersender":
+			if messageID, err := providers.SendEmailMailerSender(EmailConfig); err != nil {
+
+				log.Error(err, "Error sending email")
+				email.Status.DeliveryStatus = "Error"
+				email.Status.Error = err.Error()
+
+			} else {
+				log.Info("Email sent successfully")
+				email.Status.DeliveryStatus = "Sent"
+				email.Status.MessageId = *messageID
+			}
+
+		case "mailgun":
+			if _, messageID, err := providers.SendEmailMailgun(EmailConfig); err != nil {
+
+				log.Error(err, "Error sending email")
+				email.Status.DeliveryStatus = "Error"
+				email.Status.Error = err.Error()
+
+			} else {
+
+				log.Info("Email sent successfully")
+				email.Status.DeliveryStatus = "Sent"
+				email.Status.MessageId = *messageID
+
+			}
+
+		}
+	}
+
+	if err := r.Status().Update(ctx, &email); err != nil {
+		log.Error(err, "Unable to update Email status")
+		return ctrl.Result{}, err
+
+	} else {
+		log.Info("Email status updated successfully")
+
+	}
 	return ctrl.Result{}, nil
 }
 
