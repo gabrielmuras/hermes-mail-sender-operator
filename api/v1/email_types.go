@@ -29,8 +29,8 @@ type EmailSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of Email. Edit email_types.go to remove/update
-	SenderConfigRef string `json:"senderconfigref,omitempty"`
-	RecipientEmail  string `json:"recipientemail,omitempty"`
+	SenderConfigRef string `json:"senderConfigRef,omitempty"`
+	RecipientEmail  string `json:"recipientEmail,omitempty"`
 	Subject         string `json:"subject,omitempty"`
 	Body            string `json:"body,omitempty"`
 }
@@ -39,8 +39,8 @@ type EmailSpec struct {
 type EmailStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	DeliveryStatus string `json:"deliverystatus,omitempty"`
-	MessageId      string `json:"messageid,omitempty"`
+	DeliveryStatus string `json:"deliveryStatus,omitempty"`
+	MessageId      string `json:"messageId,omitempty"`
 	Error          string `json:"error,omitempty"`
 }
 
