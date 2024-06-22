@@ -15,6 +15,9 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
+    - jsonPath: .spec.provider
+      name: provider
+      type: string
     - jsonPath: .status.status
       name: status
       type: string
@@ -47,11 +50,22 @@ spec:
                 description: Foo is an example field of EmailSenderConfig. Edit emailsenderconfig_types.go
                   to remove/update
                 type: string
+              provider:
+                type: string
               senderEmail:
+                description: ApiTokenNamespace string `json:"apiTokenNamespace,omitempty"`
                 type: string
             type: object
           status:
             description: EmailSenderConfigStatus defines the observed state of EmailSenderConfig
+            properties:
+              provider:
+                description: |-
+                  INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+                  Important: Run "make" to regenerate code after modifying this file
+                type: string
+              status:
+                type: string
             type: object
         type: object
     served: true

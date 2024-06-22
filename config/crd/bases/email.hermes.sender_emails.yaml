@@ -14,7 +14,11 @@ spec:
     singular: email
   scope: Namespaced
   versions:
-  - name: v1
+  - additionalPrinterColumns:
+    - jsonPath: .status.deliveryStatus
+      name: deliverystatus
+      type: string
+    name: v1
     schema:
       openAPIV3Schema:
         description: Email is the Schema for the emails API
@@ -52,6 +56,16 @@ spec:
             type: object
           status:
             description: EmailStatus defines the observed state of Email
+            properties:
+              deliveryStatus:
+                description: |-
+                  INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+                  Important: Run "make" to regenerate code after modifying this file
+                type: string
+              error:
+                type: string
+              messageId:
+                type: string
             type: object
         type: object
     served: true
