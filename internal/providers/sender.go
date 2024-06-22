@@ -9,22 +9,29 @@ import (
 	mailgun "github.com/mailgun/mailgun-go/v4"
 )
 
-func SendEmailMailerSender(apiToken, subject, text, fromEmail, recipientEmail string) (*string, error) {
+type EmailConfig struct {
+	ApiToken       string
+	Subject        string
+	Text           string
+	FromEmail      string
+	RecipientEmail string
+}
 
-	//ms := mailersend.NewMailersend(os.Getenv("MAILERSEND_API_KEY"))
-	ms := mailersend.NewMailersend(apiToken)
+func SendEmailMailerSender(config EmailConfig) (*string, error) {
+
+	ms := mailersend.NewMailersend(config.ApiToken)
 
 	ctx := context.Background()
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	from := mailersend.From{
-		Email: fromEmail,
+		Email: config.FromEmail,
 	}
 
 	recipients := []mailersend.Recipient{
 		{
-			Email: recipientEmail,
+			Email: config.RecipientEmail,
 		},
 	}
 
@@ -32,8 +39,8 @@ func SendEmailMailerSender(apiToken, subject, text, fromEmail, recipientEmail st
 
 	message.SetFrom(from)
 	message.SetRecipients(recipients)
-	message.SetSubject(subject)
-	message.SetText(text)
+	message.SetSubject(config.Subject)
+	message.SetText(config.Text)
 
 	res, error := ms.Email.Send(ctx, message)
 
@@ -45,17 +52,17 @@ func SendEmailMailerSender(apiToken, subject, text, fromEmail, recipientEmail st
 
 }
 
-func sendEmailMailgun(apiToken, subject, text, fromEmail, recipientEmail string) (*string, *string, error) {
+func SendEmailMailgun(config EmailConfig) (*string, *string, error) {
 
-	domain := *removeDomain(fromEmail)
+	domain := *removeDomain(config.FromEmail)
 
-	mg := mailgun.NewMailgun(domain, apiToken)
+	mg := mailgun.NewMailgun(domain, config.ApiToken)
 
 	message := mg.NewMessage(
-		fromEmail,
-		subject,
-		text,
-		recipientEmail,
+		config.FromEmail,
+		config.Subject,
+		config.Text,
+		config.RecipientEmail,
 	)
 
 	ctx := context.Background()
