@@ -34,7 +34,7 @@ type EmailSenderConfigReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs,verbs=create;update
 // +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs/finalizers,verbs=update
 // +kubebuilder:rbac:groups=email.hermes.sender,resources=secrets,verbs=get;list;watch
@@ -81,46 +81,34 @@ func (r *EmailSenderConfigReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		apiTokenDecode = string(apiToken)
 	}
 
-	//apiToken, subject, text, fromEmail, recipientEmail
-	if emailSenderConfig.Status.Status == "" || emailSenderConfig.Status.Status == "Error" || emailSenderConfig.Status.Status == "Unknown Provider" {
-
-		dummyValidateConfig := providers.EmailConfig{
-			ApiToken:       apiTokenDecode,
-			Subject:        "test",
-			Text:           "test",
-			FromEmail:      emailSenderConfig.Spec.SenderEmail,
-			RecipientEmail: emailSenderConfig.Spec.SenderEmail,
-		}
-
-		switch provider := emailSenderConfig.Spec.Provider; provider {
-
-		case "mailersender":
-			if _, err := providers.SendEmailMailerSender(dummyValidateConfig); err != nil {
-
-				log.Error(err, "Unable to verify emailSenderConfig")
-				emailSenderConfig.Status.Status = "Error"
-
-			} else {
-				log.Info("EmailSenderConfig verified successfully")
-				emailSenderConfig.Status.Status = "Ok"
-			}
-
-		case "mailgun":
-			//paid email verification not using providers.validateDomainMailGun function
-			emailSenderConfig.Status.Status = "Ok"
-
-		default:
-			log.Error(nil, "Invalid provider. Please use mailersender or mailgun.")
-			emailSenderConfig.Status.Status = "Unknown Provider"
-
-		}
-		if err := r.Status().Update(ctx, &emailSenderConfig); err != nil {
-			log.Error(err, "Unable to create EmailSenderConfig status")
-			return ctrl.Result{}, err
+	dummyValidateConfig := providers.EmailConfig{
+		ApiToken:       apiTokenDecode,
+		Subject:        "test",
+		Text:           "test",
+		FromEmail:      emailSenderConfig.Spec.SenderEmail,
+		RecipientEmail: emailSenderConfig.Spec.SenderEmail,
+	}
+	switch provider := emailSenderConfig.Spec.Provider; provider {
+	case "mailersender":
+		if _, err := providers.SendEmailMailerSender(dummyValidateConfig); err != nil {
+			log.Error(err, "Unable to verify emailSenderConfig")
+			emailSenderConfig.Status.Status = "Error"
 		} else {
-			log.Info("EmailSenderConfig status created successfully")
-
+			log.Info("EmailSenderConfig verified successfully")
+			emailSenderConfig.Status.Status = "Ok"
 		}
+	case "mailgun":
+		//paid email verification not using providers.validateDomainMailGun function
+		emailSenderConfig.Status.Status = "Ok"
+	default:
+		log.Error(nil, "Invalid provider. Please use mailersender or mailgun.")
+		emailSenderConfig.Status.Status = "Unknown Provider"
+	}
+	if err := r.Status().Update(ctx, &emailSenderConfig); err != nil {
+		log.Error(err, "Unable to create EmailSenderConfig status")
+		return ctrl.Result{}, err
+	} else {
+		log.Info("EmailSenderConfig status created successfully")
 	}
 
 	if err := r.Status().Update(ctx, &emailSenderConfig); err != nil {
