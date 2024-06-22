@@ -20,6 +20,7 @@ import (
 	"context"
 
 	mailv1 "hermes-mail-sender-operator/api/v1"
+	providers "hermes-mail-sender-operator/internal/providers"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -35,6 +36,7 @@ type EmailSenderConfigReconciler struct {
 // +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs/finalizers,verbs=update
+// +kubebuilder:rbac:groups=email.hermes.sender,resources=secrets,verbs=get;list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -49,7 +51,60 @@ func (r *EmailSenderConfigReconciler) Reconcile(ctx context.Context, req ctrl.Re
 	log := log.FromContext(ctx)
 	log.Info("Reconciling EmailSenderConfig")
 
-	// TODO(user): your logic here
+	var emailSenderConfig mailv1.EmailSenderConfig
+
+	if err := r.Get(ctx, req.NamespacedName, &emailSenderConfig); err != nil {
+		log.Error(err, "Unable to fetch EmailSenderConfig")
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+	//apiToken, subject, text, fromEmail, recipientEmail
+	if emailSenderConfig.Status.Status == "" || emailSenderConfig.Status.Status == "Error" || emailSenderConfig.Status.Status == "Unknown Provider" {
+
+		dummyValidateConfig := providers.EmailConfig{
+			ApiToken:       "",
+			Subject:        "",
+			Text:           "",
+			FromEmail:      "",
+			RecipientEmail: "",
+		}
+
+		switch provider := emailSenderConfig.Spec.Provider; provider {
+
+		case "mailersender":
+			if _, err := providers.SendEmailMailerSender(dummyValidateConfig); err != nil {
+
+				log.Error(err, "Unable to verify emailSenderConfig")
+				emailSenderConfig.Status.Status = "Error"
+
+			} else {
+				log.Info("EmailSenderConfig verified successfully")
+				emailSenderConfig.Status.Status = "Ok"
+			}
+
+		case "mailgun":
+			//paid email verification not using providers.validateDomainMailGun function
+			emailSenderConfig.Status.Status = "Ok"
+
+		default:
+			log.Error(nil, "Invalid provider. Please use mailersender or mailgun.")
+			emailSenderConfig.Status.Status = "Unknown Provider"
+
+		}
+		if err := r.Status().Update(ctx, &emailSenderConfig); err != nil {
+			log.Error(err, "Unable to create EmailSenderConfig status")
+			return ctrl.Result{}, err
+		} else {
+			log.Info("EmailSenderConfig status created successfully")
+
+		}
+	}
+
+	if err := r.Status().Update(ctx, &emailSenderConfig); err != nil {
+		log.Error(err, "unable to update EmailSenderConfig status")
+		return ctrl.Result{}, err
+	} else {
+		log.Info("EmailSenderConfig status updated successfully")
+	}
 
 	return ctrl.Result{}, nil
 }
