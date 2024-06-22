@@ -19,8 +19,6 @@ package controller
 import (
 	"context"
 
-	//b64 "encoding/base64"
-	"fmt"
 	mailv1 "hermes-mail-sender-operator/api/v1"
 	providers "hermes-mail-sender-operator/internal/providers"
 	corev1 "k8s.io/api/core/v1"
@@ -82,7 +80,6 @@ func (r *EmailSenderConfigReconciler) Reconcile(ctx context.Context, req ctrl.Re
 
 	} else {
 		apiTokenDecode = string(apiToken)
-		fmt.Println("API Token: ", apiTokenDecode)
 	}
 
 	//apiToken, subject, text, fromEmail, recipientEmail
