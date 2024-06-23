@@ -54,7 +54,7 @@ helm install email-operator hermes-mail-sender-operator-charts/hermes-mail-sende
 Install the EmailSenderConfig using your values because it doesn't provide a default out of the box default values
 
 ```bash
-helm install config-mailersend hermes-mail-sender-operator-charts/email-sender-config -f <Your-Custom-Yaml>.yaml
+helm install <name> hermes-mail-sender-operator-charts/email-sender-config -f <Your-Custom-Yaml>.yaml
 ```
 Install the EmailSenderConfig using your values because it doesn't provide a default out of the box default values
 
