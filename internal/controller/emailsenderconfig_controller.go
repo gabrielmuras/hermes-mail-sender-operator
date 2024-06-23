@@ -33,10 +33,10 @@ type EmailSenderConfigReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs,verbs=create;update
+// +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs,verbs=create;update;list;watch;get
 // +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs/status,verbs=get;update;patch
 // +kubebuilder:rbac:groups=email.hermes.sender,resources=emailsenderconfigs/finalizers,verbs=update
-// +kubebuilder:rbac:groups=email.hermes.sender,resources=secrets,verbs=get;list;watch
+// +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

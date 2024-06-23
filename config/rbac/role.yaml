@@ -5,6 +5,14 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - email.hermes.sender
   resources:
   - emails
@@ -36,7 +44,10 @@ rules:
   - emailsenderconfigs
   verbs:
   - create
+  - get
+  - list
   - update
+  - watch
 - apiGroups:
   - email.hermes.sender
   resources:
@@ -51,11 +62,3 @@ rules:
   - get
   - patch
   - update
-- apiGroups:
-  - email.hermes.sender
-  resources:
-  - secrets
-  verbs:
-  - get
-  - list
-  - watch
