@@ -19,10 +19,9 @@ package controller
 import (
 	"context"
 	mailv1 "hermes-mail-sender-operator/api/v1"
+	secrets "hermes-mail-sender-operator/internal/k8s"
 	providers "hermes-mail-sender-operator/internal/providers"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -77,36 +76,21 @@ func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 			status := emailSenderConfig.Status.Status
 
-			if status == "Error" {
+			if status == "Error" || status == "Unknown Provider" {
 				log.Error(err, "EmailSenderConfig is in error state and cannot be used")
 				email.Status.DeliveryStatus = "EmailSenderConfigError"
 				return ctrl.Result{}, nil
 			}
 
 			//provider := emailSenderConfig.Spec.Provider
-			log.Info("Able to fetch EmailSenderConfig " + emailSenderConfig.Metadata.Name)
+			log.Info("Able to fetch EmailSenderConfig " + emailSenderConfig.Spec.Provider)
 
 		}
 
-		var apiTokenDecode string
-		secret := &corev1.Secret{}
-		secretName := types.NamespacedName{
-			Name:      emailSenderConfig.Spec.ApiTokenSecretRef,
-			Namespace: req.Namespace,
-		}
+		apiTokenDecode, err := secrets.GetDecodeApiKey(r.Client, ctx, req, emailSenderConfig.Spec.ApiTokenSecretRef)
 
-		if err := r.Get(ctx, secretName, secret); err != nil {
-			log.Error(err, "Failed to get Secret", "SecretName", secretName)
-			return ctrl.Result{}, err
-		}
-
-		// Retrieve the API token from the secret
-		apiToken, exists := secret.Data["apiToken"]
-		if !exists {
-			log.Error(nil, "Secret does not contain key 'apiToken'")
-
-		} else {
-			apiTokenDecode = string(apiToken)
+		if err != nil {
+			log.Error(err, "Unable to decode secret")
 		}
 
 		EmailConfig := providers.EmailConfig{
