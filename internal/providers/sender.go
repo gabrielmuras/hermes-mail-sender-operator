@@ -40,7 +40,7 @@ func SendEmailMailerSender(config EmailConfig) (*string, error) {
 	message.SetFrom(from)
 	message.SetRecipients(recipients)
 	message.SetSubject(config.Subject)
-	message.SetText(config.Text)
+	message.SetText(config.Body)
 
 	res, error := ms.Email.Send(ctx, message)
 
@@ -61,7 +61,7 @@ func SendEmailMailgun(config EmailConfig) (*string, *string, error) {
 	message := mg.NewMessage(
 		config.FromEmail,
 		config.Subject,
-		config.Text,
+		config.Body,
 		config.RecipientEmail,
 	)
 
