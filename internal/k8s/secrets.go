@@ -13,7 +13,6 @@ func GetDecodeApiKey(r client.Client, ctx context.Context, req ctrl.Request, ema
 	var apiTokenDecode string
 	log := log.FromContext(ctx)
 
-	// Fetch the referenced secret
 	secret := &corev1.Secret{}
 	secretName := types.NamespacedName{
 		Name:      emailSenderName,
@@ -25,7 +24,6 @@ func GetDecodeApiKey(r client.Client, ctx context.Context, req ctrl.Request, ema
 		return "", err
 	}
 
-	// Retrieve the API token from the secret
 	apiToken, exists := secret.Data["apiToken"]
 	if !exists {
 		log.Error(nil, "secret does not contain key 'apiToken'")
@@ -35,5 +33,4 @@ func GetDecodeApiKey(r client.Client, ctx context.Context, req ctrl.Request, ema
 	}
 
 	return apiTokenDecode, nil
-
 }
