@@ -18,6 +18,9 @@ spec:
     - jsonPath: .status.deliveryStatus
       name: deliverystatus
       type: string
+    - jsonPath: .status.messageId
+      name: messageid
+      type: string
     name: v1
     schema:
       openAPIV3Schema:
