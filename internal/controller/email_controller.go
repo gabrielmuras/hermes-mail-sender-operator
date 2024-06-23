@@ -97,7 +97,7 @@ func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 			ApiToken:       apiTokenDecode,
 			Subject:        email.Spec.Subject,
-			Text:           email.Spec.Body,
+			Body:           email.Spec.Body,
 			FromEmail:      emailSenderConfig.Spec.SenderEmail,
 			RecipientEmail: email.Spec.RecipientEmail,
 		}
@@ -105,6 +105,7 @@ func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		switch provider := emailSenderConfig.Spec.Provider; provider {
 
 		case "mailersender":
+
 			if messageID, err := providers.SendEmailMailerSender(EmailConfig); err != nil {
 
 				log.Error(err, "Error sending email")
@@ -112,12 +113,14 @@ func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 				email.Status.Error = err.Error()
 
 			} else {
+
 				log.Info("Email sent successfully")
 				email.Status.DeliveryStatus = "Sent"
 				email.Status.MessageId = *messageID
 			}
 
 		case "mailgun":
+
 			if _, messageID, err := providers.SendEmailMailgun(EmailConfig); err != nil {
 
 				log.Error(err, "Error sending email")

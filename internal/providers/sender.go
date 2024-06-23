@@ -12,7 +12,7 @@ import (
 type EmailConfig struct {
 	ApiToken       string
 	Subject        string
-	Text           string
+	Body           string
 	FromEmail      string
 	RecipientEmail string
 }

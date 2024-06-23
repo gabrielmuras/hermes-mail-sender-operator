@@ -53,7 +53,6 @@ spec:
               provider:
                 type: string
               senderEmail:
-                description: ApiTokenNamespace string `json:"apiTokenNamespace,omitempty"`
                 type: string
             type: object
           status:

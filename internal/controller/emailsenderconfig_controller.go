@@ -67,37 +67,49 @@ func (r *EmailSenderConfigReconciler) Reconcile(ctx context.Context, req ctrl.Re
 	dummyValidateConfig := providers.EmailConfig{
 		ApiToken:       apiTokenDecode,
 		Subject:        "test",
-		Text:           "test",
+		Body:           "test",
 		FromEmail:      emailSenderConfig.Spec.SenderEmail,
 		RecipientEmail: emailSenderConfig.Spec.SenderEmail,
 	}
+
 	switch provider := emailSenderConfig.Spec.Provider; provider {
+
 	case "mailersender":
+
 		if _, err := providers.SendEmailMailerSender(dummyValidateConfig); err != nil {
 			log.Error(err, "Unable to verify emailSenderConfig")
 			emailSenderConfig.Status.Status = "Error"
+
 		} else {
+
 			log.Info("EmailSenderConfig verified successfully")
 			emailSenderConfig.Status.Status = "Ok"
 		}
+
 	case "mailgun":
 		//paid email verification not using providers.validateDomainMailGun function
 		emailSenderConfig.Status.Status = "Ok"
+
 	default:
 		log.Error(nil, "Invalid provider. Please use mailersender or mailgun.")
 		emailSenderConfig.Status.Status = "Unknown Provider"
 	}
+
 	if err := r.Status().Update(ctx, &emailSenderConfig); err != nil {
 		log.Error(err, "Unable to create EmailSenderConfig status")
 		return ctrl.Result{}, err
+
 	} else {
+
 		log.Info("EmailSenderConfig status created successfully")
 	}
 
 	if err := r.Status().Update(ctx, &emailSenderConfig); err != nil {
 		log.Error(err, "unable to update EmailSenderConfig status")
 		return ctrl.Result{}, err
+
 	} else {
+
 		log.Info("EmailSenderConfig status updated successfully")
 	}
 

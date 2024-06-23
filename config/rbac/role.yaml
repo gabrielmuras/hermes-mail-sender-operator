@@ -36,12 +36,7 @@ rules:
   - emailsenderconfigs
   verbs:
   - create
-  - delete
-  - get
-  - list
-  - patch
   - update
-  - watch
 - apiGroups:
   - email.hermes.sender
   resources:
