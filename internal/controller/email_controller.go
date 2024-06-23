@@ -105,9 +105,9 @@ func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 		switch provider := emailSenderConfig.Spec.Provider; provider {
 
-		case "mailersender":
+		case "mailersend":
 
-			if messageID, err := providers.SendEmailMailerSender(EmailConfig); err != nil {
+			if messageID, err := providers.SendEmailMailerSend(EmailConfig); err != nil {
 
 				log.Error(err, "Error sending email")
 				setEmailStatusFailed(&email, "Error", messageID, err)

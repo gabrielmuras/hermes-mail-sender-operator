@@ -74,9 +74,9 @@ func (r *EmailSenderConfigReconciler) Reconcile(ctx context.Context, req ctrl.Re
 
 	switch provider := emailSenderConfig.Spec.Provider; provider {
 
-	case "mailersender":
+	case "mailersend":
 
-		if _, err := providers.SendEmailMailerSender(dummyValidateConfig); err != nil {
+		if _, err := providers.SendEmailMailerSend(dummyValidateConfig); err != nil {
 			log.Error(err, "Unable to verify emailSenderConfig")
 			emailSenderConfig.Status.Status = "Error"
 
@@ -91,7 +91,7 @@ func (r *EmailSenderConfigReconciler) Reconcile(ctx context.Context, req ctrl.Re
 		emailSenderConfig.Status.Status = "Ok"
 
 	default:
-		log.Error(nil, "Invalid provider. Please use mailersender or mailgun.")
+		log.Error(nil, "Invalid provider. Please use mailersend or mailgun.")
 		emailSenderConfig.Status.Status = "Unknown Provider"
 	}
 

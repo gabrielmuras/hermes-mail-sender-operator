@@ -17,8 +17,8 @@ type EmailConfig struct {
 	RecipientEmail string
 }
 
-func SendEmailMailerSender(config EmailConfig) (*string, error) {
-	//mailersender provider can be validated with a dummy email to himself
+func SendEmailMailerSend(config EmailConfig) (*string, error) {
+	//mailersend provider can be validated with a dummy email to himself
 	ms := mailersend.NewMailersend(config.ApiToken)
 
 	ctx := context.Background()
