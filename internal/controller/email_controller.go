@@ -70,19 +70,20 @@ func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		if err := r.Get(ctx, key, &emailSenderConfig); err != nil {
 
 			log.Error(err, "Unable to fetch EmailSenderConfig. "+email.Spec.SenderConfigRef)
-			return ctrl.Result{}, nil
+			setEmailStatusFailed(&email, "Unknown EmailSenderConfig", nil, err)
+			updateEmailStatus(r.Client, ctx, email)
 
 		} else {
 
 			status := emailSenderConfig.Status.Status
 
 			if status == "Error" || status == "Unknown Provider" {
+
 				log.Error(err, "EmailSenderConfig is in error state and cannot be used")
-				email.Status.DeliveryStatus = "EmailSenderConfigError"
-				return ctrl.Result{}, nil
+				setEmailStatusFailed(&email, "Error", nil, err)
+				updateEmailStatus(r.Client, ctx, email)
 			}
 
-			//provider := emailSenderConfig.Spec.Provider
 			log.Info("Able to fetch EmailSenderConfig " + emailSenderConfig.Spec.Provider)
 
 		}
@@ -109,14 +110,13 @@ func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 			if messageID, err := providers.SendEmailMailerSender(EmailConfig); err != nil {
 
 				log.Error(err, "Error sending email")
-				email.Status.DeliveryStatus = "Error"
-				email.Status.Error = err.Error()
+				setEmailStatusFailed(&email, "Error", messageID, err)
 
 			} else {
 
 				log.Info("Email sent successfully")
-				email.Status.DeliveryStatus = "Sent"
-				email.Status.MessageId = *messageID
+				setEmailStatusOk(&email, "Sent", messageID)
+
 			}
 
 		case "mailgun":
@@ -124,29 +124,19 @@ func (r *EmailReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 			if _, messageID, err := providers.SendEmailMailgun(EmailConfig); err != nil {
 
 				log.Error(err, "Error sending email")
-				email.Status.DeliveryStatus = "Error"
-				email.Status.Error = err.Error()
+				setEmailStatusFailed(&email, "Error", messageID, err)
 
 			} else {
 
 				log.Info("Email sent successfully")
-				email.Status.DeliveryStatus = "Sent"
-				email.Status.MessageId = *messageID
+				setEmailStatusOk(&email, "Sent", messageID)
 
 			}
 
 		}
 	}
 
-	if err := r.Status().Update(ctx, &email); err != nil {
-		log.Error(err, "Unable to update Email status")
-		return ctrl.Result{}, err
-
-	} else {
-		log.Info("Email status updated successfully")
-
-	}
-	return ctrl.Result{}, nil
+	return updateEmailStatus(r.Client, ctx, email)
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -156,4 +146,35 @@ func (r *EmailReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		// For().
 		For(&mailv1.Email{}).
 		Complete(r)
+}
+
+func updateEmailStatus(r client.Client, ctx context.Context, email mailv1.Email) (ctrl.Result, error) {
+	log := log.FromContext(ctx)
+	if err := r.Status().Update(ctx, &email); err != nil {
+		log.Error(err, "Unable to update Email status")
+		return ctrl.Result{}, err
+
+	} else {
+		log.Info("Email status updated successfully")
+
+	}
+
+	return ctrl.Result{}, nil
+}
+
+func setEmailStatusOk(email *mailv1.Email, deliveryStatus string, messageId *string) {
+
+	email.Status.DeliveryStatus = deliveryStatus
+	email.Status.MessageId = *messageId
+
+}
+
+func setEmailStatusFailed(email *mailv1.Email, deliveryStatus string, messageId *string, error error) {
+	if messageId == nil {
+		messageId = new(string)
+	}
+	email.Status.DeliveryStatus = deliveryStatus
+	email.Status.MessageId = *messageId
+	email.Status.Error = error.Error()
+
 }
