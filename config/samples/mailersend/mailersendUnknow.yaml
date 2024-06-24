@@ -1,0 +1,9 @@
+apiVersion: email.hermes.sender/v1
+kind: Email
+metadata:
+  name: "email-mailsender-unknow"
+spec:
+  senderConfigRef: "bol" #unknow senderConfigRef
+  recipientEmail: ""
+  subject: "subject"
+  body: "message"

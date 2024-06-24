@@ -1,0 +1,10 @@
+apiVersion: email.hermes.sender/v1
+kind: Email
+metadata:
+  name: "email-mailgun-ok"
+spec:
+  senderConfigRef: "mailgun"
+  recipientEmail: ""
+  subject: "subject"
+  body: "message"
+

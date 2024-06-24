@@ -1,0 +1,19 @@
+---
+apiVersion: email.hermes.sender/v1
+kind: EmailSenderConfig
+metadata:
+  name: "mailersend"
+spec:
+  apiTokenSecretRef: "mailersend-secret"
+  senderEmail: ""
+  provider: "mailersend"
+
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mailersend-secret
+type: Opaque
+data:
+  apiToken: ""

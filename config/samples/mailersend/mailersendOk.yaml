@@ -1,0 +1,9 @@
+apiVersion: email.hermes.sender/v1
+kind: Email
+metadata:
+  name: "email-mailsender-ok"
+spec:
+  senderConfigRef: "mailersend"
+  recipientEmail: ""
+  subject: "subject"
+  body: "message"

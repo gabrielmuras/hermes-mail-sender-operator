@@ -1,0 +1,19 @@
+---
+apiVersion: email.hermes.sender/v1
+kind: EmailSenderConfig
+metadata:
+  name: "mailgun"
+spec:
+  apiTokenSecretRef: "secret-mailgun"
+  senderEmail: ""
+  provider: "mailgun"
+
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret-mailgun
+type: Opaque
+data:
+  apiToken: ""
