@@ -180,7 +180,7 @@ spec:
 
 Then after the email is applied you can run a kubectl get email command and retrieve the informations displayed on the status and in case of failure you can get the error from the status as well
 
-### Screnshoots
+### Screenshots
 
 ![image](https://github.com/gabrielmuras/hermes-mail-sender-operator-helm-charts/assets/62755656/1d8ad229-d534-4718-b17d-e10851ff940b)
 
